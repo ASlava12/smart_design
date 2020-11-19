@@ -8,4 +8,4 @@ app = FastAPI()
 
 @app.get('/')
 def home():
-    return {'key': "home"}
+    return "hello"
