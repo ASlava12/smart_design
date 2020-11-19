@@ -3,8 +3,9 @@
 python3 -m pip install uvicorn fastapi pymongo
 ```
 
-Запуск сервера из директории src:
+Запуск MongoDB и сервера из директории src:
 ```
+docker run -d -p 27017:27017 mongo
 cd src
 uvicorn main:app
 ```
