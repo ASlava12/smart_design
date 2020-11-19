@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 
 import re
 
-product_collection = db['product']
+product_collection = db['products']
 
 class Product(BaseModel):
     """
@@ -21,8 +21,15 @@ def _find(filter: dict) -> list:
     Отправляем запрос к базе данных и распаковывем его в виде списка.
     """
     res = []
-    for record in product_collection.find(filter):
-        res.append(record)
+    req=product_collection.find(filter)
+    for record in req:
+        print(1)
+        res.append({
+            'id': str(record['_id']),
+            'name': record['name'],
+            'description': record['description'],
+            'parametres': record['parametres']
+        })
     return res 
 
 def add(product: Product) -> str:
@@ -48,11 +55,19 @@ def get_by_name(name: str, is_full_match: bool = True) -> list:
         return _find({"name": name})
     else:
         find_by_name = re.compile(name)
+        return _find({"name": {"$regex": find_by_name}})
 
+
+re_int = re.compile(r'^[0-9]+$')
+re_float = re.compile(r'^[0-9]+\.[0-9]+$')
 def get_by_parameter(parameter_key: str, parameter_value: str) -> list:
     """
-    Поиск по параметру в базе данных.
+    Поиск по параметру с указанным значением в базе данных.
         parameter_key - имя параметра;
         parameter_value - значение параметра.
     """
+    if re_int.match(parameter_value) != None:
+        parameter_value = int(parameter_value)
+    elif re_float.match(parameter_value) != None:
+        parameter_value = float(parameter_value)
     return _find({'parametres.{}'.format(parameter_key): parameter_value})
